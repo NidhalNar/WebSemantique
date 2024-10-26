@@ -33,7 +33,6 @@ public class RestApi {
             return ("Error when reading model from ontology");
         }
     }
-    //CRUD LKOL YE5DEM
 
     @GetMapping("/restaurant")
     @CrossOrigin(origins = "http://localhost:4200")
@@ -58,22 +57,18 @@ public class RestApi {
     public ResponseEntity<String> addRestaurant(@RequestBody RestaurantDto restaurantDto) {
         if (model != null) {
             try {
-                // Create a new resource for the restaurant
                 Resource restaurantResource = model.createResource(restaurantDto.getRestaurant());
 
-                // Create properties for the restaurant details
                 Property nameProperty = model.createProperty("http://rescuefood.org/ontology#name");
                 Property contactProperty = model.createProperty("http://rescuefood.org/ontology#contact");
                 Property addressProperty = model.createProperty("http://rescuefood.org/ontology#address");
 
-                // Add statements to the model
                 model.add(restaurantResource, RDF.type, model.createResource("http://rescuefood.org/ontology#Restaurant"));
                 model.add(restaurantResource, nameProperty, restaurantDto.getName());
                 model.add(restaurantResource, contactProperty, restaurantDto.getContact());
                 model.add(restaurantResource, addressProperty, restaurantDto.getAddress());
 
-                // Optionally: Save the model back to a file or database if needed
-                JenaEngine.saveModel(model, "data/rescuefood.owl"); // Ensure changes are saved
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
 
                 return new ResponseEntity<>("Restaurant added successfully", HttpStatus.CREATED);
             } catch (Exception e) {
@@ -88,18 +83,15 @@ public class RestApi {
     public ResponseEntity<String> modifyRestaurant(@RequestBody RestaurantDto restaurantDto) {
         if (model != null) {
             try {
-                // Get the existing resource for the restaurant
                 Resource restaurantResource = model.getResource(restaurantDto.getRestaurant());
                 if (restaurantResource == null) {
                     return new ResponseEntity<>("Restaurant not found", HttpStatus.NOT_FOUND);
                 }
 
-                // Create properties for the restaurant details
                 Property nameProperty = model.createProperty("http://rescuefood.org/ontology#name");
                 Property contactProperty = model.createProperty("http://rescuefood.org/ontology#contact");
                 Property addressProperty = model.createProperty("http://rescuefood.org/ontology#address");
 
-                // Update the statements in the model
                 model.removeAll(restaurantResource, nameProperty, null);
                 model.removeAll(restaurantResource, contactProperty, null);
                 model.removeAll(restaurantResource, addressProperty, null);
@@ -108,8 +100,7 @@ public class RestApi {
                 model.add(restaurantResource, contactProperty, restaurantDto.getContact());
                 model.add(restaurantResource, addressProperty, restaurantDto.getAddress());
 
-                // Optionally: Save the model back to a file or database if needed
-                JenaEngine.saveModel(model, "data/rescuefood.owl"); // Ensure changes are saved
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
 
                 return new ResponseEntity<>("Restaurant modified successfully", HttpStatus.OK);
             } catch (Exception e) {
@@ -122,23 +113,20 @@ public class RestApi {
     @DeleteMapping("/deleteRestaurant")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<String> deleteRestaurant(@RequestBody RestaurantDto restaurantDto) {
-        String restaurantUri = restaurantDto.getRestaurant(); // Get the URI from the DTO
+        String restaurantUri = restaurantDto.getRestaurant();
 
-        System.out.println("Received request to delete restaurant: " + restaurantUri); // Logging
+        System.out.println("Received request to delete restaurant: " + restaurantUri);
 
         if (model != null) {
             try {
-                // Get the existing resource for the restaurant
                 Resource restaurantResource = model.getResource(restaurantUri);
                 if (restaurantResource == null) {
                     return new ResponseEntity<>("Restaurant not found", HttpStatus.NOT_FOUND);
                 }
 
-                // Remove all statements associated with the restaurant
-                model.removeAll(restaurantResource, null, null); // Removes all statements related to the restaurant
+                model.removeAll(restaurantResource, null, null);
 
-                // Optionally: Save the model back to a file or database if needed
-                JenaEngine.saveModel(model, "data/rescuefood.owl"); // Save changes to the OWL file
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
 
                 return new ResponseEntity<>("Restaurant deleted successfully", HttpStatus.OK);
             } catch (Exception e) {
@@ -212,20 +200,6 @@ public class RestApi {
             return ("Error when reading model from ontology");
         }
     }
-    @GetMapping("/feedback")
-    @CrossOrigin(origins = "http://localhost:4200")
-    public String afficherFeedback() {
-        String NS = "";
-        if (model != null) {
-            NS = model.getNsPrefixURI("");
-            Model inferredModel = JenaEngine.readInferencedModelFromRuleFile(model, "data/rules.txt");
-            OutputStream res = JenaEngine.executeQueryFile(inferredModel, "data/query_Feedback.txt");
-            System.out.println(res);
-            return res.toString();
-        } else {
-            return ("Error when reading model from ontology");
-        }
-    }
 
     @GetMapping("/director")
     @CrossOrigin(origins = "http://localhost:4200")
@@ -270,5 +244,102 @@ public class RestApi {
         } else {
             return ("Error when reading model from ontology");
         }
+
     }
+    @GetMapping("/feedback")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public String afficherFeedback() {
+        String NS = "";
+        if (model != null) {
+            NS = model.getNsPrefixURI("");
+            Model inferredModel = JenaEngine.readInferencedModelFromRuleFile(model, "data/rules.txt");
+            OutputStream res = JenaEngine.executeQueryFile(inferredModel, "data/query_Feedback.txt");
+            System.out.println(res);
+            return res.toString();
+        } else {
+            return ("Error when reading model from ontology");
+        }
+    }
+    @PostMapping("/addFeedback")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> addFeedback(@RequestBody FeedbackDto feedbackDto) {
+        if (model != null) {
+            try {
+                Resource feedbackResource = model.createResource(feedbackDto.getFeedback());
+
+                Property ratingProperty = model.createProperty("http://rescuefood.org/ontology#rating");
+                Property commentProperty = model.createProperty("http://rescuefood.org/ontology#comment");
+
+                model.add(feedbackResource, RDF.type, model.createResource("http://rescuefood.org/ontology#Feedback"));
+                model.add(feedbackResource, ratingProperty, feedbackDto.getRating().toString());
+                model.add(feedbackResource, commentProperty, feedbackDto.getComment());
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Feedback ajouté avec succès", HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Erreur lors de l'ajout du feedback : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Erreur lors de la lecture du modèle de l'ontologie", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/modifyFeedback")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> modifyFeedback(@RequestBody FeedbackDto feedbackDto) {
+        if (model != null) {
+            try {
+                Resource feedbackResource = model.getResource(feedbackDto.getFeedback());
+                if (feedbackResource == null) {
+                    return new ResponseEntity<>("Feedback not found", HttpStatus.NOT_FOUND);
+                }
+
+                Property ratingProperty = model.createProperty("http://rescuefood.org/ontology#rating");
+                Property commentProperty = model.createProperty("http://rescuefood.org/ontology#comment");
+
+                model.removeAll(feedbackResource, ratingProperty, null);
+                model.removeAll(feedbackResource, commentProperty, null);
+
+                model.add(feedbackResource, ratingProperty, feedbackDto.getRating().toString());
+                model.add(feedbackResource, commentProperty, feedbackDto.getComment());
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Feedback modified successfully", HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error modifying feedback: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @DeleteMapping("/deleteFeedback")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> deleteFeedback(@RequestBody FeedbackDto feedbackDto) {
+        String feedbackUri = feedbackDto.getFeedback();
+
+        System.out.println("Received request to delete feedback: " + feedbackUri);
+
+        if (model != null) {
+            try {
+                Resource feedbackResource = model.getResource(feedbackUri);
+                if (feedbackResource == null) {
+                    return new ResponseEntity<>("Feedback not found", HttpStatus.NOT_FOUND);
+                }
+
+                model.removeAll(feedbackResource, null, null);
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Feedback deleted successfully", HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error deleting feedback: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
 }
