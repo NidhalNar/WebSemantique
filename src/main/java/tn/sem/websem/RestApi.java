@@ -200,6 +200,86 @@ public class RestApi {
             return ("Error when reading model from ontology");
         }
     }
+    @PostMapping("/addNotification")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> addNotification(@RequestBody NotificationDto notificationDto) {
+        if (model != null) {
+            try {
+                Resource notificationResource = model.createResource(notificationDto.getNotification());
+
+                Property recipientProperty = model.createProperty("http://rescuefood.org/ontology#recipient");
+                Property notificationTypeProperty = model.createProperty("http://rescuefood.org/ontology#notificationType");
+
+                model.add(notificationResource, RDF.type, model.createResource("http://rescuefood.org/ontology#Notification"));
+                model.add(notificationResource, recipientProperty, notificationDto.getRecipient());
+                model.add(notificationResource, notificationTypeProperty, notificationDto.getNotificationType());
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Notification ajoutée avec succès", HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Erreur lors de l'ajout de la notification : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Erreur lors de la lecture du modèle de l'ontologie", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/modifyNotification")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> modifyNotification(@RequestBody NotificationDto notificationDto) {
+        if (model != null) {
+            try {
+                Resource notificationResource = model.getResource(notificationDto.getNotification());
+                if (notificationResource == null) {
+                    return new ResponseEntity<>("Notification not found", HttpStatus.NOT_FOUND);
+                }
+
+                Property recipientProperty = model.createProperty("http://rescuefood.org/ontology#recipient");
+                Property notificationTypeProperty = model.createProperty("http://rescuefood.org/ontology#notificationType");
+
+                model.removeAll(notificationResource, recipientProperty, null);
+                model.removeAll(notificationResource, notificationTypeProperty, null);
+
+                model.add(notificationResource, recipientProperty, notificationDto.getRecipient());
+                model.add(notificationResource, notificationTypeProperty, notificationDto.getNotificationType());
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Notification modified successfully", HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error modifying notification: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @DeleteMapping("/deleteNotification")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> deleteNotification(@RequestBody NotificationDto notificationDto) {
+        String notificationUri = notificationDto.getNotification();
+
+        System.out.println("Received request to delete notification: " + notificationUri);
+
+        if (model != null) {
+            try {
+                Resource notificationResource = model.getResource(notificationUri);
+                if (notificationResource == null) {
+                    return new ResponseEntity<>("Notification not found", HttpStatus.NOT_FOUND);
+                }
+
+                model.removeAll(notificationResource, null, null);
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Notification deleted successfully", HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error deleting notification: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/director")
     @CrossOrigin(origins = "http://localhost:4200")
