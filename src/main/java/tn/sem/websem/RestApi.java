@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class RestApi {
 
+
     Model model = JenaEngine.readModel("data/rescuefood.owl");
 
     @GetMapping("/inventory")
