@@ -409,6 +409,109 @@ public class RestApi {
         }
     }
 
+    @PostMapping("/addDirector")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> addDirector(@RequestBody DirectorDto directorDto) {
+        if (model != null) {
+            try {
+                // Generate a random URL for the director resource using UUID
+                String directorResourceUri = "http://rescuefood.org/ontology#Director" + UUID.randomUUID().toString();
+
+                // Create the resource with the generated URL
+                Resource directorResource = model.createResource(directorResourceUri);
+
+                // Define properties
+                Property contactProperty = model.createProperty("http://rescuefood.org/ontology#contact");
+                Property nameProperty = model.createProperty("http://rescuefood.org/ontology#name");
+
+                // Add RDF type for the resource
+                model.add(directorResource, RDF.type, model.createResource("http://rescuefood.org/ontology#Director"));
+
+                // Add properties to the resource
+                model.add(directorResource, contactProperty, directorDto.getContact());
+                model.add(directorResource, nameProperty, directorDto.getName());
+
+                // Save the model
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Director added successfully: " + directorResourceUri, HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error adding Director: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/updateDirector")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> updateDirector(@RequestBody DirectorDto directorDto) {
+        if (model != null) {
+            try {
+                // Create the resource URI from the DirectorDto
+                String directorResourceUri = directorDto.getDirector(); // Assuming the URI is passed in the directorDto
+
+                // Check if the resource exists
+                Resource directorResource = model.getResource(directorResourceUri);
+                if (directorResource == null) {
+                    return new ResponseEntity<>("Director resource not found", HttpStatus.NOT_FOUND);
+                }
+
+                Property contactProperty = model.createProperty("http://rescuefood.org/ontology#contact");
+                Property nameProperty = model.createProperty("http://rescuefood.org/ontology#name");
+
+                // Update properties of the existing resource
+                model.removeAll(directorResource, contactProperty, null); // Remove existing contact
+                model.add(directorResource, contactProperty, directorDto.getContact()); // Add updated contact
+
+                model.removeAll(directorResource, nameProperty, null); // Remove existing name
+                model.add(directorResource, nameProperty, directorDto.getName()); // Add updated name
+
+                // Save the updated model
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Director updated successfully: " + directorResourceUri, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error updating Director: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/deleteDirector")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> deleteDirector(@RequestBody DirectorDto directorDto) {
+        if (model != null) {
+            try {
+                // Create the resource URI from the DirectorDto
+                String directorResourceUri = directorDto.getDirector(); // Assuming the URI is passed in the directorDto
+
+                // Check if the resource exists
+                Resource directorResource = model.getResource(directorResourceUri);
+                if (directorResource == null) {
+                    return new ResponseEntity<>("Director resource not found", HttpStatus.NOT_FOUND);
+                }
+
+                // Remove the resource from the model
+                model.removeAll(directorResource, null, null); // Remove all triples associated with this resource
+                model.remove(directorResource, RDF.type, model.createResource("http://rescuefood.org/ontology#Director")); // Specifically remove the RDF type
+
+                // Save the updated model
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Director deleted successfully: " + directorResourceUri, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error deleting Director: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+
+
     @GetMapping("/collectionevent")
     @CrossOrigin(origins = "http://localhost:4200")
     public String afficherCollectionEvent() {
@@ -423,6 +526,100 @@ public class RestApi {
             return ("Error when reading model from ontology");
         }
     }
+
+    @PostMapping("/addCollectionEvent")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> addCollectionEvent(@RequestBody CollectionEventDto collectionEventDto) {
+        if (model != null) {
+            try {
+                // Generate a random URI for the CollectionEvent resource
+                String eventResourceUri = "http://rescuefood.org/ontology#CollectionEvent" + UUID.randomUUID().toString();
+
+                // Create the resource with the generated URI
+                Resource eventResource = model.createResource(eventResourceUri);
+
+                // Define the date property
+                Property dateProperty = model.createProperty("http://rescuefood.org/ontology#date");
+
+                // Add RDF type and properties for the resource
+                model.add(eventResource, RDF.type, model.createResource("http://rescuefood.org/ontology#CollectionEvent"));
+                model.add(eventResource, dateProperty, collectionEventDto.getDate());
+
+                // Save the updated model
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("CollectionEvent added successfully: " + eventResourceUri, HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error adding CollectionEvent: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PutMapping("/updateCollectionEvent")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> updateCollectionEvent(@RequestBody CollectionEventDto collectionEventDto) {
+        if (model != null) {
+            try {
+                // Get the resource URI from the CollectionEventDto
+                String eventResourceUri = collectionEventDto.getEvent(); // Assuming the URI is passed in the collectionEventDto
+
+                // Check if the resource exists
+                Resource eventResource = model.getResource(eventResourceUri);
+                if (eventResource == null) {
+                    return new ResponseEntity<>("CollectionEvent resource not found", HttpStatus.NOT_FOUND);
+                }
+
+                // Define the date property
+                Property dateProperty = model.createProperty("http://rescuefood.org/ontology#date");
+
+                // Update the date property
+                model.removeAll(eventResource, dateProperty, null); // Remove existing date
+                model.add(eventResource, dateProperty, collectionEventDto.getDate()); // Add updated date
+
+                // Save the updated model
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("CollectionEvent updated successfully: " + eventResourceUri, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error updating CollectionEvent: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @DeleteMapping("/deleteCollectionEvent")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> deleteCollectionEvent(@RequestBody CollectionEventDto collectionEventDto) {
+        if (model != null) {
+            try {
+                // Get the resource URI from the CollectionEventDto
+                String eventResourceUri = collectionEventDto.getEvent(); // Assuming the URI is passed in the collectionEventDto
+
+                // Check if the resource exists
+                Resource eventResource = model.getResource(eventResourceUri);
+                if (eventResource == null) {
+                    return new ResponseEntity<>("CollectionEvent resource not found", HttpStatus.NOT_FOUND);
+                }
+
+                // Remove the resource from the model
+                model.removeAll(eventResource, null, null); // Remove all triples associated with this resource
+                model.remove(eventResource, RDF.type, model.createResource("http://rescuefood.org/ontology#CollectionEvent")); // Specifically remove the RDF type
+
+                // Save the updated model
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("CollectionEvent deleted successfully: " + eventResourceUri, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error deleting CollectionEvent: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
     @GetMapping("/request")
     @CrossOrigin(origins = "http://localhost:4200")
