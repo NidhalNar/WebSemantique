@@ -1520,6 +1520,252 @@ public class RestApi {
         }
     }
 
+    @GetMapping("/allAssociations")
+    public String afficherAssociations() {
+        if (model != null) {
+            // Obtain the inferred model from the ontology
+            Model inferredModel = JenaEngine.readInferencedModelFromRuleFile(model, "data/rules.txt");
+
+            // Check if the inferred model is null
+            if (inferredModel == null) {
+                return "Error: Inferred model is null.";
+            }
+
+            // Execute the SPARQL query to get all associations
+            OutputStream res = JenaEngine.executeQueryFile(inferredModel, "data/query_Association.txt");
+
+            // Check if the result is null
+            if (res == null) {
+                return "Error: Query execution returned null.";
+            }
+
+            // Return the results as a string
+            return res.toString();
+        } else {
+            return "Error when reading model from ontology.";
+        }
+    }
+
+
+    @PostMapping("/addAssociation")
+    public ResponseEntity<String> addAssociation(@RequestBody AssociationDto associationDto) {
+        if (model != null) {
+            try {
+                // Define the SPARQL INSERT query
+                String insertQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#Association> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "INSERT { " +
+                                "  ?association rdf:type rescue:Association . " +
+                                "  ?association rescue:nom \"" + associationDto.getNom() + "\" . " +
+                                "  ?association rescue:adresse \"" + associationDto.getAdresse() + "\" . " +
+                                "  ?association rescue:contact \"" + associationDto.getContact() + "\" . " +
+                                "} WHERE { " +
+                                "  BIND(IRI(CONCAT(\"http://rescuefood.org/ontology/Association_\", STRUUID())) AS ?association) " +
+                                "}";
+
+                UpdateRequest updateRequest = UpdateFactory.create(insertQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return ResponseEntity.status(HttpStatus.CREATED).body("Association added successfully");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding association: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error when reading model from ontology");
+        }
+    }
+
+    @PutMapping("/modifyAssociation")
+    public ResponseEntity<String> modifyAssociation(@RequestBody AssociationDto associationDto) {
+        if (model != null) {
+            try {
+                Resource associationResource = model.getResource(associationDto.getNom());
+                if (associationResource == null) {
+                    return new ResponseEntity<>("Association not found", HttpStatus.NOT_FOUND);
+                }
+
+                String modifyQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#Association> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "DELETE { " +
+                                "  ?association rescue:nom ?oldNom . " +
+                                "  ?association rescue:adresse ?oldAdresse . " +
+                                "  ?association rescue:contact ?oldContact . " +
+                                "} " +
+                                "INSERT { " +
+                                "  ?association rescue:nom \"" + associationDto.getNom() + "\" . " +
+                                "  ?association rescue:adresse \"" + associationDto.getAdresse() + "\" . " +
+                                "  ?association rescue:contact \"" + associationDto.getContact() + "\" . " +
+                                "} " +
+                                "WHERE { " +
+                                "  BIND(<" + associationDto.getNom() + "> AS ?association) ." +
+                                "  OPTIONAL { ?association rescue:nom ?oldNom } ." +
+                                "  OPTIONAL { ?association rescue:adresse ?oldAdresse } ." +
+                                "  OPTIONAL { ?association rescue:contact ?oldContact } ." +
+                                "}";
+
+                UpdateRequest updateRequest = UpdateFactory.create(modifyQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return ResponseEntity.ok("Association modified successfully");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error modifying association: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error when reading model from ontology");
+        }
+    }
+
+    @DeleteMapping("/deleteAssociation")
+    public ResponseEntity<String> deleteAssociation(@RequestBody AssociationDto associationDto) {
+        String associationUri = associationDto.getNom();
+
+        if (model != null) {
+            try {
+                String deleteQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#Association> " +
+                                "DELETE WHERE { " +
+                                "  <" + associationUri + "> ?p ?o ." +
+                                "}";
+
+                UpdateRequest updateRequest = UpdateFactory.create(deleteQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return ResponseEntity.ok("Association deleted successfully");
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting association: " + e.getMessage());
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error when reading model from ontology");
+        }
+    }
+    @GetMapping("/allDemande")
+    public String getAllDemandes() {
+        if (model != null) {
+            try {
+                Model inferedModel = JenaEngine.readInferencedModelFromRuleFile(model, "data/rules.txt");
+                OutputStream res = JenaEngine.executeQueryFile(inferedModel, "data/query_Demande.txt");
+                System.out.println(res);  // Print the result for debugging
+                return res.toString();
+            } catch (Exception e) {
+                e.printStackTrace();  // Log the exception for debugging
+                return "Error when executing query: " + e.getMessage();
+            }
+        } else {
+            return "Error when reading model from ontology";
+        }
+    }
+
+
+    // Create operation: Add a new demande
+    @PostMapping("/addDemande")
+    public ResponseEntity<String> addDemande(@RequestBody Map<String, Object> demandeData) {
+        if (model != null) {
+            try {
+                String typeNourriture = (String) demandeData.get("typeNouritture");
+                Float quantiteDemande = Float.parseFloat(demandeData.get("quantiteDemande").toString());
+                String date = (String) demandeData.get("date");
+
+                String insertQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#Demande> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "INSERT { " +
+                                "  ?demande rdf:type rescue:Demande . " +
+                                "  ?demande rescue:typeNourriture \"" + typeNourriture + "\" . " +
+                                "  ?demande rescue:quantiteDemande " + quantiteDemande + " . " +
+                                "  ?demande rescue:date \"" + date + "\" . " +
+                                "} WHERE { " +
+                                "  BIND(IRI(CONCAT(\"http://rescuefood.org/ontology/Demande_\", STRUUID())) AS ?demande) " +
+                                "}";
+
+                UpdateRequest updateRequest = UpdateFactory.create(insertQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+                return new ResponseEntity<>("Demande added successfully", HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error adding demande: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Update operation: Modify an existing demande
+    @PutMapping("/modifyDemande")
+    public ResponseEntity<String> modifyDemande(@RequestBody Map<String, Object> demandeData) {
+        if (model != null) {
+            try {
+                String demandeUri = (String) demandeData.get("demandeUri");
+                String typeNourriture = (String) demandeData.get("typeNouritture");
+                Float quantiteDemande = Float.parseFloat(demandeData.get("quantiteDemande").toString());
+                String date = (String) demandeData.get("date");
+
+                String modifyQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#Demande> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "DELETE { " +
+                                "  ?demande rescue:typeNourriture ?oldType . " +
+                                "  ?demande rescue:quantiteDemande ?oldQuantite . " +
+                                "  ?demande rescue:date ?oldDate . " +
+                                "} " +
+                                "INSERT { " +
+                                "  ?demande rescue:typeNourriture \"" + typeNourriture + "\" . " +
+                                "  ?demande rescue:quantiteDemande " + quantiteDemande + " . " +
+                                "  ?demande rescue:date \"" + date + "\" . " +
+                                "} " +
+                                "WHERE { " +
+                                "  BIND(<" + demandeUri + "> AS ?demande) ." +
+                                "  OPTIONAL { ?demande rescue:typeNourriture ?oldType } ." +
+                                "  OPTIONAL { ?demande rescue:quantiteDemande ?oldQuantite } ." +
+                                "  OPTIONAL { ?demande rescue:date ?oldDate } ." +
+                                "}";
+
+                UpdateRequest updateRequest = UpdateFactory.create(modifyQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+                return new ResponseEntity<>("Demande modified successfully", HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error modifying demande: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    // Delete operation: Delete a demande
+    @DeleteMapping("/deleteDemande")
+    public ResponseEntity<String> deleteDemande(@RequestBody Map<String, Object> demandeData) {
+        if (model != null) {
+            try {
+                String demandeUri = (String) demandeData.get("demandeUri");
+
+                String deleteQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#Demande> " +
+                                "DELETE WHERE { " +
+                                "  <" + demandeUri + "> ?p ?o ." +
+                                "}";
+
+                UpdateRequest updateRequest = UpdateFactory.create(deleteQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+                return new ResponseEntity<>("Demande deleted successfully", HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error deleting demande: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
 
 
 }
