@@ -359,6 +359,34 @@ public class RestApi {
             return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @GetMapping("/restaurants/sorted")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> getSortedRestaurants() {
+        if (model != null) {
+            try {
+                // Define the SPARQL query to retrieve sorted restaurants by name
+                String queryString =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "SELECT ?restaurant ?name ?contact ?address " +
+                                "WHERE { " +
+                                "  ?restaurant rdf:type rescue:Restaurant . " +
+                                "  ?restaurant rescue:name ?name . " +
+                                "} " +
+                                "ORDER BY ?name"; // Sort by restaurant name
+
+                // Execute the query on the inferred model
+                OutputStream res = JenaEngine.executeQuery(model, queryString);
+
+                // Convert the OutputStream to String for the response
+                return new ResponseEntity<>(res.toString(), HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error retrieving sorted restaurants: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @PostMapping("/addRestaurant")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<String> addRestaurant(@RequestBody RestaurantDto restaurantDto) {
