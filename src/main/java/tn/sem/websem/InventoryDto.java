@@ -2,7 +2,7 @@ package tn.sem.websem;
 
 public class InventoryDto {
     private String inventory;
-    private String currentQuantity;
+    private float currentQuantity;
 
     public String getInventory() {
         return inventory;
@@ -12,11 +12,11 @@ public class InventoryDto {
         this.inventory = inventory;
     }
 
-    public String getCurrentQuantity() {
+    public float getCurrentQuantity() {
         return currentQuantity;
     }
 
-    public void setCurrentQuantity(String currentQuantity) {
+    public void setCurrentQuantity(float currentQuantity) {
         this.currentQuantity = currentQuantity;
     }
 }
