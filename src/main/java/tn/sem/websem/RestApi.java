@@ -10,6 +10,12 @@ import org.apache.jena.vocabulary.RDF;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.apache.jena.query.QuerySolution;
+import org.apache.jena.query.ResultSet;
+import org.apache.jena.query.ResultSetFormatter;
+import org.apache.jena.update.UpdateAction;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateRequest;
 
 @RestController
 public class RestApi {
@@ -241,6 +247,117 @@ public class RestApi {
             return ("Error when reading model from ontology");
         }
     }
+    @PostMapping("/addRestaurant2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> addRestaurant2(@RequestBody RestaurantDto restaurantDto) {
+        if (model != null) {
+            try {
+                // Define the SPARQL INSERT query
+                String insertQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "INSERT { " +
+                                "  ?restaurant rdf:type rescue:Restaurant . " +
+                                "  ?restaurant rescue:name \"" + restaurantDto.getName() + "\" . " +
+                                "  ?restaurant rescue:contact \"" + restaurantDto.getContact() + "\" . " +
+                                "  ?restaurant rescue:address \"" + restaurantDto.getAddress() + "\" . " +
+                                "} WHERE { " +
+                                "  BIND(IRI(CONCAT(\"http://rescuefood.org/ontology/Restaurant_\", STRUUID())) AS ?restaurant) " +
+                                "}";
+
+                // Create the update request and execute it
+                UpdateRequest updateRequest = UpdateFactory.create(insertQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Save the updated model to the ontology file
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Restaurant added successfully", HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error adding restaurant: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/modifyRestaurant2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> modifyRestaurant2(@RequestBody RestaurantDto restaurantDto) {
+        if (model != null) {
+            try {
+                // Ensure the restaurant resource exists
+                Resource restaurantResource = model.getResource(restaurantDto.getRestaurant());
+                if (restaurantResource == null) {
+                    return new ResponseEntity<>("Restaurant not found", HttpStatus.NOT_FOUND);
+                }
+
+                // Define the SPARQL DELETE/INSERT query
+                String modifyQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "DELETE { " +
+                                "  ?restaurant rescue:name ?oldName . " +
+                                "  ?restaurant rescue:contact ?oldContact . " +
+                                "  ?restaurant rescue:address ?oldAddress . " +
+                                "} " +
+                                "INSERT { " +
+                                "  ?restaurant rescue:name \"" + restaurantDto.getName() + "\" . " +
+                                "  ?restaurant rescue:contact \"" + restaurantDto.getContact() + "\" . " +
+                                "  ?restaurant rescue:address \"" + restaurantDto.getAddress() + "\" . " +
+                                "} " +
+                                "WHERE { " +
+                                "  BIND(<" + restaurantDto.getRestaurant() + "> AS ?restaurant) ." +
+                                "  OPTIONAL { ?restaurant rescue:name ?oldName } ." +
+                                "  OPTIONAL { ?restaurant rescue:contact ?oldContact } ." +
+                                "  OPTIONAL { ?restaurant rescue:address ?oldAddress } ." +
+                                "}";
+
+                // Create and execute the update request
+                UpdateRequest updateRequest = UpdateFactory.create(modifyQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Save the updated model to the ontology file
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Restaurant modified successfully", HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error modifying restaurant: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @DeleteMapping("/deleteRestaurant2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> deleteRestaurant2(@RequestBody RestaurantDto restaurantDto) {
+        String restaurantUri = restaurantDto.getRestaurant();
+
+        System.out.println("Received request to delete restaurant: " + restaurantUri);
+
+        if (model != null) {
+            try {
+                // Define the SPARQL DELETE query
+                String deleteQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "DELETE WHERE { " +
+                                "  <" + restaurantUri + "> ?p ?o ." +
+                                "}";
+
+                // Create and execute the update request
+                UpdateRequest updateRequest = UpdateFactory.create(deleteQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Save the updated model to the ontology file
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Restaurant deleted successfully", HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error deleting restaurant: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
     @PostMapping("/addRestaurant")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<String> addRestaurant(@RequestBody RestaurantDto restaurantDto) {
@@ -356,6 +473,114 @@ public class RestApi {
 
         } else {
             return ("Error when reading model from ontology");
+        }
+    }
+    @PostMapping("/addFood2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> addFood3(@RequestBody FoodDto foodDto) {
+        if (model != null) {
+            try {
+                // Construct SPARQL INSERT query
+                String insertQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "INSERT { " +
+                                "  ?food rdf:type rescue:Food . " +
+                                "  ?food rescue:foodType \"" + foodDto.getFoodType() + "\" . " +
+                                "  ?food rescue:quantity \"" + foodDto.getQuantity() + "\" . " +
+                                "  ?food rescue:expiryDate \"" + foodDto.getExpiryDate() + "\" . " +
+                                "} " +
+                                "WHERE { " +
+                                "  BIND(IRI(CONCAT(\"http://rescuefood.org/resource/Food/\", STRUUID())) AS ?food) " +
+                                "}";
+
+                // Create and execute the update request
+                UpdateRequest updateRequest = UpdateFactory.create(insertQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Save the updated model to the ontology file
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Food added successfully", HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error adding food: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @PutMapping("/updateFood2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> updateFood2(@RequestBody FoodDto foodDto) {
+        if (model != null) {
+            try {
+                // Create the SPARQL update query
+                String updateQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "DELETE { " +
+                                "  ?food rescue:foodType ?oldFoodType . " +
+                                "  ?food rescue:quantity ?oldQuantity . " +
+                                "  ?food rescue:expiryDate ?oldExpiryDate . " +
+                                "} " +
+                                "INSERT { " +
+                                "  ?food rescue:foodType \"" + foodDto.getFoodType() + "\" . " +
+                                "  ?food rescue:quantity \"" + foodDto.getQuantity() + "\" . " +
+                                "  ?food rescue:expiryDate \"" + foodDto.getExpiryDate() + "\" . " +
+                                "} " +
+                                "WHERE { " +
+                                "  ?food rdf:type rescue:Food . " +
+                                "  ?food rescue:foodType ?oldFoodType . " +
+                                "  FILTER(?food = <" + foodDto.getFood() + ">) " +
+                                "}";
+
+                // Create and execute the update request
+                UpdateRequest updateRequest = UpdateFactory.create(updateQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Save the updated model to the ontology file
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Food updated successfully: " + foodDto.getFood(), HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error updating food: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+    @DeleteMapping("/deleteFood2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> deleteFood2(@RequestBody FoodDto foodDto) {
+        if (model != null) {
+            try {
+                // Create the resource URI from the FoodDto
+                String foodResourceUri = foodDto.getFood(); // Assuming the URI is passed in the foodDto
+
+                // Create a SPARQL DELETE query
+                String deleteQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "DELETE { " +
+                                "  ?food ?p ?o . " + // Delete all predicates and objects for the food resource
+                                "} " +
+                                "WHERE { " +
+                                "  BIND(<" + foodResourceUri + "> AS ?food) . " +
+                                "  ?food ?p ?o . " + // Match all triples for the specified food resource
+                                "}";
+
+                // Create and execute the update request
+                UpdateRequest updateRequest = UpdateFactory.create(deleteQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Save the updated model to the ontology file
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Food deleted successfully: " + foodResourceUri, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error deleting food: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
     @PostMapping("/addFood")
