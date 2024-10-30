@@ -2,6 +2,9 @@ package tn.sem.websem;
 
 import java.io.*;
 
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import org.apache.jena.query.Query;
 import org.apache.jena.query.QueryExecution;
@@ -156,6 +159,10 @@ public class JenaEngine {
             e.printStackTrace();
         }
     }
+    public static String readFileAsString(String filePath) throws IOException {
+        return new String(Files.readAllBytes(Paths.get(filePath)));
+    }
+
 
     static public void executeUpdate(String updateString, Model model) {
         UpdateRequest updateRequest = UpdateFactory.create(updateString);

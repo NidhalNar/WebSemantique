@@ -129,6 +129,11 @@
     <j.0:contact>test</j.0:contact>
     <j.0:address>test</j.0:address>
   </j.0:Restaurant>
+  <j.0:Feedback rdf:about="http://rescuefood.org/ontology#Feedbacka42c56a4-3088-481c-90c0-059a75130b46">
+    <j.0:rating>2</j.0:rating>
+    <j.0:comment>azert</j.0:comment>
+    <j.0:feedback>http://rescuefood.org/ontology#Feedbacka42c56a4-3088-481c-90c0-059a75130b46</j.0:feedback>
+  </j.0:Feedback>
   <j.0:Food rdf:about="http://rescuefood.org/ontology#Foodc332c313-eec1-41df-a231-fc6cbeec1203">
     <j.0:foodType>rzaazraz</j.0:foodType>
     <j.0:quantity>aztaztazt</j.0:quantity>
@@ -172,12 +177,16 @@
     <j.0:expiryDate>raz</j.0:expiryDate>
   </j.0:Food>
   <j.0:CollectionEvent rdf:about="http://rescuefood.org/ontology#CollectionEvent1">
-    <j.0:date>2024-10-25</j.0:date>
+    <j.0:date>2024-10-31</j.0:date>
   </j.0:CollectionEvent>
   <rdf:Description rdf:about="http://rescuefood.org/ontology#Director357c3e2d-14db-4f58-91c7-bb5e5dc8560c">
     <j.0:name>cab</j.0:name>
     <j.0:contact>john.doe@example.com</j.0:contact>
   </rdf:Description>
+  <j.0:Feedback rdf:about="http://rescuefood.org/ontology/Feedback_13d3a1a9-4b16-4826-a4ae-426f82f84be0">
+    <j.0:rating>11</j.0:rating>
+    <j.0:comment>Excellent service!</j.0:comment>
+  </j.0:Feedback>
   <j.0:Restaurant rdf:about="http://rescuefood.org/ontology#Restaurant92ba45a6-29df-4e4d-9e55-e8c8dae056a0">
     <j.0:name>aze</j.0:name>
     <j.0:contact>aze</j.0:contact>
