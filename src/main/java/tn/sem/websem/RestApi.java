@@ -1330,6 +1330,196 @@ public class RestApi {
     }
 
 
+    @PostMapping("/addCollectionEvent2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> addCollectionEvent2(@RequestBody CollectionEventDto collectionEventDto) {
+        if (model != null) {
+            try {
+                // Construct SPARQL INSERT query
+                String insertQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> " +
+                                "INSERT { " +
+                                "  ?event rdf:type rescue:CollectionEvent . " +
+                                "  ?event rescue:date \"" + collectionEventDto.getDate() + "\" . " +
+                                "} " +
+                                "WHERE { " +
+                                "  BIND(IRI(CONCAT(\"http://rescuefood.org/resource/CollectionEvent/\", STRUUID())) AS ?event) " +
+                                "}";
+
+                // Create and execute the update request
+                UpdateRequest updateRequest = UpdateFactory.create(insertQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Save the updated model to the ontology file
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("CollectionEvent added successfully", HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error adding CollectionEvent: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PutMapping("/updateCollectionEvent2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> updateCollectionEvent2(@RequestBody CollectionEventDto collectionEventDto) {
+        if (model != null) {
+            try {
+                // URI de l'événement à mettre à jour
+                String eventResourceUri = collectionEventDto.getEvent(); // L'URI doit être passée dans collectionEventDto
+
+                // Construire la requête SPARQL UPDATE
+                String updateQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "DELETE { <" + eventResourceUri + "> rescue:date ?oldDate . } " +
+                                "INSERT { <" + eventResourceUri + "> rescue:date \"" + collectionEventDto.getDate() + "\" . } " +
+                                "WHERE { <" + eventResourceUri + "> rescue:date ?oldDate . }";
+
+                // Créer et exécuter la requête de mise à jour
+                UpdateRequest updateRequest = UpdateFactory.create(updateQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Sauvegarder le modèle mis à jour dans le fichier RDF
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("CollectionEvent updated successfully: " + eventResourceUri, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error updating CollectionEvent: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @DeleteMapping("/deleteCollectionEvent2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> deleteCollectionEvent2(@RequestBody CollectionEventDto collectionEventDto) {
+        if (model != null) {
+            try {
+                // URI de l'événement à supprimer
+                String eventResourceUri = collectionEventDto.getEvent(); // L'URI doit être passée dans collectionEventDto
+
+                // Construire la requête SPARQL DELETE
+                String deleteQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "DELETE WHERE { <" + eventResourceUri + "> ?p ?o . }";
+
+                // Créer et exécuter la requête de suppression
+                UpdateRequest updateRequest = UpdateFactory.create(deleteQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Sauvegarder le modèle mis à jour dans le fichier RDF
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("CollectionEvent deleted successfully: " + eventResourceUri, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error deleting CollectionEvent: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+    @PostMapping("/addDirector2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> addDirector2(@RequestBody DirectorDto directorDto) {
+        if (model != null) {
+            try {
+                // Générer un URI unique pour le director en utilisant UUID
+                String directorResourceUri = "http://rescuefood.org/ontology#Director" + UUID.randomUUID().toString();
+
+                // Construire la requête SPARQL INSERT
+                String insertQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "INSERT DATA { " +
+                                "<" + directorResourceUri + "> rdf:type rescue:Director ; " +
+                                "rescue:contact \"" + directorDto.getContact() + "\" ; " +
+                                "rescue:name \"" + directorDto.getName() + "\" . }";
+
+                // Créer et exécuter la requête d'insertion
+                UpdateRequest updateRequest = UpdateFactory.create(insertQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Sauvegarder le modèle mis à jour
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Director added successfully: " + directorResourceUri, HttpStatus.CREATED);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error adding Director: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @PutMapping("/updateDirector2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> updateDirector2(@RequestBody DirectorDto directorDto) {
+        if (model != null) {
+            try {
+                // URI du directeur à mettre à jour
+                String directorResourceUri = directorDto.getDirector(); // L'URI doit être passée dans directorDto
+
+                // Construire la requête SPARQL UPDATE
+                String updateQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "DELETE { <" + directorResourceUri + "> rescue:contact ?oldContact ; rescue:name ?oldName . } " +
+                                "INSERT { <" + directorResourceUri + "> rescue:contact \"" + directorDto.getContact() + "\" ; " +
+                                "rescue:name \"" + directorDto.getName() + "\" . } " +
+                                "WHERE { <" + directorResourceUri + "> rescue:contact ?oldContact ; rescue:name ?oldName . }";
+
+                // Créer et exécuter la requête de mise à jour
+                UpdateRequest updateRequest = UpdateFactory.create(updateQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Sauvegarder le modèle mis à jour
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Director updated successfully: " + directorResourceUri, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error updating Director: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
+
+    @DeleteMapping("/deleteDirector2")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<String> deleteDirector2(@RequestBody DirectorDto directorDto) {
+        if (model != null) {
+            try {
+                // URI du directeur à supprimer
+                String directorResourceUri = directorDto.getDirector(); // L'URI doit être passée dans directorDto
+
+                // Construire la requête SPARQL DELETE
+                String deleteQuery =
+                        "PREFIX rescue: <http://rescuefood.org/ontology#> " +
+                                "DELETE WHERE { <" + directorResourceUri + "> ?p ?o . }";
+
+                // Créer et exécuter la requête de suppression
+                UpdateRequest updateRequest = UpdateFactory.create(deleteQuery);
+                UpdateAction.execute(updateRequest, model);
+
+                // Sauvegarder le modèle mis à jour
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                return new ResponseEntity<>("Director deleted successfully: " + directorResourceUri, HttpStatus.OK);
+            } catch (Exception e) {
+                return new ResponseEntity<>("Error deleting Director: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+            }
+        } else {
+            return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 }
