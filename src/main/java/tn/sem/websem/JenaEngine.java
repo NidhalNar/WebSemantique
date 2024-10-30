@@ -13,6 +13,13 @@ import org.apache.jena.rdf.model.*;
 import org.apache.jena.reasoner.rulesys.GenericRuleReasoner;
 import org.apache.jena.reasoner.rulesys.Rule;
 import org.apache.jena.util.FileManager;
+import org.apache.jena.update.*;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateExecutionFactory;
+import org.apache.jena.update.UpdateFactory;
+import org.apache.jena.update.UpdateRequest;
+import org.apache.jena.query.Dataset;
+import org.apache.jena.query.DatasetFactory;
 
 /**
  *
@@ -24,7 +31,7 @@ public class JenaEngine {
     static private String RDF ="http://rescuefood.org/ontology#";
 
     /**
-     * Charger un mod�le � partir d�un fichier owl
+     * Charger un modle partir dun fichier owl
      * @param args
      * + Entree: le chemin vers le fichier owl
      * + Sortie: l'objet model jena
@@ -149,4 +156,14 @@ public class JenaEngine {
             e.printStackTrace();
         }
     }
+
+    static public void executeUpdate(String updateString, Model model) {
+        UpdateRequest updateRequest = UpdateFactory.create(updateString);
+        // Create a GraphStore/Dataset from the model
+        Dataset dataset = DatasetFactory.create(model);
+        // Execute the update on the dataset
+        UpdateProcessor processor = UpdateExecutionFactory.create(updateRequest, dataset);
+        processor.execute();
+    }
+
 }

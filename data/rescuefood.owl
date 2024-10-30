@@ -96,11 +96,16 @@
   <j.0:Inventory rdf:about="http://rescuefood.org/ontology#Inventory6519fc46-dd54-4ee3-bf39-e856bdaff1d2">
     <j.0:currentQuantity>500,0</j.0:currentQuantity>
   </j.0:Inventory>
-  <j.0:Food rdf:about="http://rescuefood.org/ontology#Food3305c49c-2cee-4e08-bbcf-80cfca92e754">
-    <j.0:foodType>123</j.0:foodType>
-    <j.0:quantity>123</j.0:quantity>
-    <j.0:expiryDate>123</j.0:expiryDate>
-  </j.0:Food>
+  <j.0:Inventory rdf:about="http://rescuefood.org/ontology#Inventoryb4ed9bfe-b267-411e-94ab-3114ccca0927">
+    <j.0:currentQuantity>15,000000</j.0:currentQuantity>
+    <j.0:stores>
+      <j.0:Food rdf:about="http://rescuefood.org/ontology#Food3305c49c-2cee-4e08-bbcf-80cfca92e754">
+        <j.0:foodType>123</j.0:foodType>
+        <j.0:quantity>123</j.0:quantity>
+        <j.0:expiryDate>123</j.0:expiryDate>
+      </j.0:Food>
+    </j.0:stores>
+  </j.0:Inventory>
   <j.0:Restaurant rdf:about="http://rescuefood.org/ontology#Restaurant1c6450d8-4aef-4431-8a0a-8ca8b30f794d">
     <j.0:name>Le test</j.0:name>
     <j.0:contact>test</j.0:contact>
@@ -119,9 +124,6 @@
     <j.0:contact>test</j.0:contact>
     <j.0:address>test</j.0:address>
   </j.0:Restaurant>
-  <j.0:Inventory rdf:about="http://rescuefood.org/ontology#Inventoryccb6e41f-f195-4ee4-a362-a1ed5eb79cb0">
-    <j.0:currentQuantity>500,0</j.0:currentQuantity>
-  </j.0:Inventory>
   <j.0:Restaurant rdf:about="http://rescuefood.org/ontology#Restaurant8a471334-0c7e-4a81-890a-4736e93308f8">
     <j.0:name>Le test</j.0:name>
     <j.0:contact>test</j.0:contact>
