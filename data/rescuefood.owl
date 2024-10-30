@@ -3,6 +3,7 @@
     xmlns:owl="http://www.w3.org/2002/07/owl#"
     xmlns:j.0="http://rescuefood.org/ontology#"
     xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#"
+    xmlns:j.1="http://rescuefood.org/ontology/"
     xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
   <owl:Class rdf:about="http://rescuefood.org/ontology#Inventory">
     <j.0:currentQuantity>Float</j.0:currentQuantity>
@@ -87,12 +88,32 @@
     <j.0:quantity>azr</j.0:quantity>
     <j.0:foodType>ar</j.0:foodType>
   </j.0:Food>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback350096cf-1e51-4bd8-bf0f-ef1e0b0b130e">
+    <j.1:rating>1</j.1:rating>
+    <j.1:comment>zzz</j.1:comment>
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback350096cf-1e51-4bd8-bf0f-ef1e0b0b130e</j.1:feedback>
+  </j.1:Feedback>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedbackdf36940a-3dda-4772-8be4-02c189bb447c">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedbackdf36940a-3dda-4772-8be4-02c189bb447c</j.1:feedback>
+    <j.1:comment>Ceci est un commentaire de test.</j.1:comment>
+    <j.1:rating>5</j.1:rating>
+  </j.1:Feedback>
   <j.0:Association rdf:about="http://rescuefood.org/ontology#Association1">
     <j.0:foodNeeds>Vegetables, Fruits</j.0:foodNeeds>
     <j.0:contact>54098765</j.0:contact>
     <j.0:address>456 Charity Ave, City</j.0:address>
     <j.0:name>Food for All</j.0:name>
   </j.0:Association>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedbackc1f8040f-3680-4902-997c-6c1ffcd6fcd7">
+    <j.1:rating>1</j.1:rating>
+    <j.1:comment>aaaaaaaaaaaa</j.1:comment>
+    <j.1:feedback>http://rescuefood.org/ontology/Feedbackc1f8040f-3680-4902-997c-6c1ffcd6fcd7</j.1:feedback>
+  </j.1:Feedback>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedbacka57a9cbb-9b1a-4b07-aeb2-f821749d4656">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedbacka57a9cbb-9b1a-4b07-aeb2-f821749d4656</j.1:feedback>
+    <j.1:comment>azert</j.1:comment>
+    <j.1:rating>2</j.1:rating>
+  </j.1:Feedback>
   <j.0:Inventory rdf:about="http://rescuefood.org/ontology#Inventory1">
     <j.0:currentQuantity>500.0</j.0:currentQuantity>
   </j.0:Inventory>
@@ -101,11 +122,31 @@
     <j.0:quantity>123</j.0:quantity>
     <j.0:foodType>123</j.0:foodType>
   </j.0:Food>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback143e58ed-533f-41a4-9b5d-88f3daf32756">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback143e58ed-533f-41a4-9b5d-88f3daf32756</j.1:feedback>
+    <j.1:comment>Service meilleur !	</j.1:comment>
+    <j.1:rating>2</j.1:rating>
+  </j.1:Feedback>
   <j.0:Restaurant rdf:about="http://rescuefood.org/ontology#Restaurant1c6450d8-4aef-4431-8a0a-8ca8b30f794d">
     <j.0:address>test</j.0:address>
     <j.0:contact>test</j.0:contact>
     <j.0:name>Le test</j.0:name>
   </j.0:Restaurant>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback874781d5-4261-427a-9a90-60883699f897">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback874781d5-4261-427a-9a90-60883699f897</j.1:feedback>
+    <j.1:comment>Service meilleur !	</j.1:comment>
+    <j.1:rating>2</j.1:rating>
+  </j.1:Feedback>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback9908d5d3-39ad-4bd6-98c9-5fda42f1cdcd">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback9908d5d3-39ad-4bd6-98c9-5fda42f1cdcd</j.1:feedback>
+    <j.1:comment>azert</j.1:comment>
+    <j.1:rating>2</j.1:rating>
+  </j.1:Feedback>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback2bb78103-31f9-477e-94c9-a5a2af4c72c7">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback2bb78103-31f9-477e-94c9-a5a2af4c72c7</j.1:feedback>
+    <j.1:comment>ahmmm test</j.1:comment>
+    <j.1:rating>5</j.1:rating>
+  </j.1:Feedback>
   <j.0:Food rdf:about="http://rescuefood.org/ontology#Foodd0b64ce2-7757-46e3-a7f5-25011c8ec839">
     <j.0:expiryDate>444</j.0:expiryDate>
     <j.0:quantity>44</j.0:quantity>
@@ -121,11 +162,31 @@
     <j.0:contact>test</j.0:contact>
     <j.0:name>Le test</j.0:name>
   </j.0:Restaurant>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback2c82c4a0-0bf0-4fb9-b441-1e72a407c339">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback2c82c4a0-0bf0-4fb9-b441-1e72a407c339</j.1:feedback>
+    <j.1:comment>Ceci est un commentaire de test.</j.1:comment>
+    <j.1:rating>5</j.1:rating>
+  </j.1:Feedback>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback44606602-af8f-42e7-8537-61a0aa10a259">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback44606602-af8f-42e7-8537-61a0aa10a259</j.1:feedback>
+    <j.1:comment>Ceci est un commentaire de test.</j.1:comment>
+    <j.1:rating>5</j.1:rating>
+  </j.1:Feedback>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback4a8cd05a-29ed-4829-b85f-f89b2bf8f0c3">
+    <j.1:rating>5</j.1:rating>
+    <j.1:comment>Ceci est un commentaire de test.</j.1:comment>
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback4a8cd05a-29ed-4829-b85f-f89b2bf8f0c3</j.1:feedback>
+  </j.1:Feedback>
   <j.0:Food rdf:about="http://rescuefood.org/ontology#Foodc332c313-eec1-41df-a231-fc6cbeec1203">
     <j.0:expiryDate>atztazaz</j.0:expiryDate>
     <j.0:quantity>aztaztazt</j.0:quantity>
     <j.0:foodType>rzaazraz</j.0:foodType>
   </j.0:Food>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback1a7dd9a3-d200-4dc5-a09c-e1f57598f678">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback1a7dd9a3-d200-4dc5-a09c-e1f57598f678</j.1:feedback>
+    <j.1:comment>saisssss</j.1:comment>
+    <j.1:rating>2</j.1:rating>
+  </j.1:Feedback>
   <j.0:Feedback rdf:about="http://rescuefood.org/ontology#Feedback5">
     <j.0:comment>Service  meilleur !</j.0:comment>
     <j.0:rating>12</j.0:rating>
@@ -138,10 +199,30 @@
     <j.0:contact>azr</j.0:contact>
     <j.0:name>raz</j.0:name>
   </j.0:Restaurant>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedbackfccf9cd1-456c-4d5d-bced-57f0ee8ed868">
+    <j.1:rating>5</j.1:rating>
+    <j.1:comment>Ceci est un commentaire de test.</j.1:comment>
+    <j.1:feedback>http://rescuefood.org/ontology/Feedbackfccf9cd1-456c-4d5d-bced-57f0ee8ed868</j.1:feedback>
+  </j.1:Feedback>
+  <j.0:Feedback rdf:about="http://rescuefood.org/ontology#Feedbackd1f79e64-9690-4c97-b517-3a5960f347a5">
+    <j.0:rating>1</j.0:rating>
+    <j.0:comment>s satisfait!</j.0:comment>
+    <j.0:feedback>http://rescuefood.org/ontology#Feedbackd1f79e64-9690-4c97-b517-3a5960f347a5</j.0:feedback>
+  </j.0:Feedback>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback45906205-c05f-44fd-8982-5cf585679540">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback45906205-c05f-44fd-8982-5cf585679540</j.1:feedback>
+    <j.1:comment>Ceci est un commentaire de test.</j.1:comment>
+    <j.1:rating>5</j.1:rating>
+  </j.1:Feedback>
   <j.0:Manager rdf:about="http://rescuefood.org/ontology#Manager1">
     <j.0:contact>53034112</j.0:contact>
     <j.0:name>Said Atoui</j.0:name>
   </j.0:Manager>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback9b8a0c61-f73f-4a3c-9416-071c475c6f3d">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback9b8a0c61-f73f-4a3c-9416-071c475c6f3d</j.1:feedback>
+    <j.1:comment>Service meilleur !	</j.1:comment>
+    <j.1:rating>3</j.1:rating>
+  </j.1:Feedback>
   <rdf:Description rdf:about="http://rescuefood.org/ontology#Food9fed694e-8967-4360-93db-66c90410ccfc">
     <j.0:expiryDate>aa123</j.0:expiryDate>
     <j.0:quantity>aa123</j.0:quantity>
@@ -158,10 +239,6 @@
     <j.0:contact>aezr</j.0:contact>
     <j.0:name>rza</j.0:name>
   </j.0:Restaurant>
-  <j.0:Director rdf:about="http://rescuefood.org/ontology#Director1">
-    <j.0:contact>55012345</j.0:contact>
-    <j.0:name>Amine Khaled</j.0:name>
-  </j.0:Director>
   <j.0:Food rdf:about="http://rescuefood.org/ontology#Food351ff226-6999-4adc-9788-3ffd52aa9cfa">
     <j.0:expiryDate>raz</j.0:expiryDate>
     <j.0:quantity>raz</j.0:quantity>
@@ -170,6 +247,25 @@
   <j.0:CollectionEvent rdf:about="http://rescuefood.org/ontology#CollectionEvent1">
     <j.0:date>2024-10-25</j.0:date>
   </j.0:CollectionEvent>
+  <rdf:Description rdf:about="http://rescuefood.org/ontology#Director357c3e2d-14db-4f58-91c7-bb5e5dc8560c">
+    <j.0:contact>john.doe@example.com</j.0:contact>
+    <j.0:name>cab</j.0:name>
+  </rdf:Description>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback8224290c-5669-4b70-8639-26f683cce52d">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback8224290c-5669-4b70-8639-26f683cce52d</j.1:feedback>
+    <j.1:comment>aaaaaaaaaaaa</j.1:comment>
+    <j.1:rating>2</j.1:rating>
+  </j.1:Feedback>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedback452d72a0-dd21-4639-aa8f-9b9754e29e49">
+    <j.1:rating>5</j.1:rating>
+    <j.1:comment>Ceci est un commentaire de test.</j.1:comment>
+    <j.1:feedback>http://rescuefood.org/ontology/Feedback452d72a0-dd21-4639-aa8f-9b9754e29e49</j.1:feedback>
+  </j.1:Feedback>
+  <j.1:Feedback rdf:about="http://rescuefood.org/ontology/Feedbacke5f445c5-2d03-421a-8d8f-7cc394e85093">
+    <j.1:feedback>http://rescuefood.org/ontology/Feedbacke5f445c5-2d03-421a-8d8f-7cc394e85093</j.1:feedback>
+    <j.1:comment>saisssss</j.1:comment>
+    <j.1:rating>3</j.1:rating>
+  </j.1:Feedback>
   <j.0:Restaurant rdf:about="http://rescuefood.org/ontology#Restaurant92ba45a6-29df-4e4d-9e55-e8c8dae056a0">
     <j.0:address>zae</j.0:address>
     <j.0:contact>aze</j.0:contact>

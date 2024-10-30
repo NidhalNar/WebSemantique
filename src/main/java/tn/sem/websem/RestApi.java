@@ -1,8 +1,9 @@
 package tn.sem.websem;
 
 import java.io.OutputStream;
-import java.util.UUID;
+import java.util.*;
 
+import org.apache.jena.query.*;
 import org.apache.jena.rdf.model.Model;
 import org.apache.jena.rdf.model.Property;
 import org.apache.jena.rdf.model.Resource;
@@ -14,7 +15,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 public class RestApi {
 
-
+    private static final String NS = "http://rescuefood.org/ontology#";
     Model model = JenaEngine.readModel("data/rescuefood.owl");
 
     @GetMapping("/inventory")
@@ -313,6 +314,8 @@ public class RestApi {
             return ("Error when reading model from ontology");
         }
     }
+
+
     @PostMapping("/addNotification")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<String> addNotification(@RequestBody NotificationDto notificationDto) {
@@ -337,6 +340,8 @@ public class RestApi {
             return new ResponseEntity<>("Erreur lors de la lecture du modèle de l'ontologie", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
     @PutMapping("/modifyNotification")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<String> modifyNotification(@RequestBody NotificationDto notificationDto) {
@@ -366,6 +371,8 @@ public class RestApi {
             return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
     @DeleteMapping("/deleteNotification")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<String> deleteNotification(@RequestBody NotificationDto notificationDto) {
@@ -458,25 +465,39 @@ public class RestApi {
     public ResponseEntity<String> addFeedback(@RequestBody FeedbackDto feedbackDto) {
         if (model != null) {
             try {
-                Resource feedbackResource = model.createResource(feedbackDto.getFeedback());
+                // Générer une URL aléatoire pour la ressource de feedback en utilisant UUID
+                String feedbackResourceUri = "http://rescuefood.org/ontology#Feedback" + UUID.randomUUID().toString();
 
-                Property ratingProperty = model.createProperty("http://rescuefood.org/ontology#rating");
+                // Créer la ressource avec l'URL générée
+                Resource feedbackResource = model.createResource(feedbackResourceUri);
+
+                Property feedbackProperty = model.createProperty("http://rescuefood.org/ontology#feedback");
                 Property commentProperty = model.createProperty("http://rescuefood.org/ontology#comment");
+                Property ratingProperty = model.createProperty("http://rescuefood.org/ontology#rating");
 
+                // Ajouter le type RDF pour la ressource
                 model.add(feedbackResource, RDF.type, model.createResource("http://rescuefood.org/ontology#Feedback"));
-                model.add(feedbackResource, ratingProperty, feedbackDto.getRating().toString());
-                model.add(feedbackResource, commentProperty, feedbackDto.getComment());
 
+                // Ajouter les propriétés à la ressource
+                model.add(feedbackResource, feedbackProperty, feedbackResourceUri);
+                model.add(feedbackResource, commentProperty, feedbackDto.getComment());
+                model.add(feedbackResource, ratingProperty, feedbackDto.getRating().toString());
+
+
+                // Sauvegarder le modèle
                 JenaEngine.saveModel(model, "data/rescuefood.owl");
 
-                return new ResponseEntity<>("Feedback ajouté avec succès", HttpStatus.CREATED);
+                return new ResponseEntity<>("Feedback ajouté avec succès : " + feedbackResourceUri, HttpStatus.CREATED);
             } catch (Exception e) {
                 return new ResponseEntity<>("Erreur lors de l'ajout du feedback : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
         } else {
-            return new ResponseEntity<>("Erreur lors de la lecture du modèle de l'ontologie", HttpStatus.INTERNAL_SERVER_ERROR);
+            return new ResponseEntity<>("Erreur lors de la lecture du modèle à partir de l'ontologie", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+
+
+
     @PutMapping("/modifyFeedback")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<String> modifyFeedback(@RequestBody FeedbackDto feedbackDto) {
@@ -509,22 +530,30 @@ public class RestApi {
     @DeleteMapping("/deleteFeedback")
     @CrossOrigin(origins = "http://localhost:4200")
     public ResponseEntity<String> deleteFeedback(@RequestBody FeedbackDto feedbackDto) {
+        // Obtenez l'URI du feedback à partir du DTO
         String feedbackUri = feedbackDto.getFeedback();
 
         System.out.println("Received request to delete feedback: " + feedbackUri);
 
+        // Vérifiez si le modèle est disponible
         if (model != null) {
             try {
+                // Récupérez la ressource de feedback à partir de l'URI
                 Resource feedbackResource = model.getResource(feedbackUri);
                 if (feedbackResource == null) {
                     return new ResponseEntity<>("Feedback not found", HttpStatus.NOT_FOUND);
                 }
 
+                // Supprimez toutes les triplets associés à la ressource de feedback
                 model.removeAll(feedbackResource, null, null);
 
+                // Supprimez également le type RDF si nécessaire
+                model.remove(feedbackResource, RDF.type, model.createResource("http://rescuefood.org/ontology#Feedback"));
+
+                // Enregistrez le modèle mis à jour
                 JenaEngine.saveModel(model, "data/rescuefood.owl");
 
-                return new ResponseEntity<>("Feedback deleted successfully", HttpStatus.OK);
+                return new ResponseEntity<>("Feedback deleted successfully: " + feedbackUri, HttpStatus.OK);
             } catch (Exception e) {
                 return new ResponseEntity<>("Error deleting feedback: " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
             }
@@ -532,6 +561,133 @@ public class RestApi {
             return new ResponseEntity<>("Error when reading model from ontology", HttpStatus.INTERNAL_SERVER_ERROR);
         }
     }
+    @PostMapping("/addfeedbacks")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<Map<String, Object>> add(@RequestBody FeedbackDto feedbackDto) {
+        if (model != null) {
+            try {
+                // Générer une URL aléatoire pour la ressource de feedback
+                String feedbackResourceUri = NS + "Feedback" + UUID.randomUUID().toString();
+
+                // Créer la ressource avec l'URL générée
+                Resource feedbackResource = model.createResource(feedbackResourceUri);
+
+                // Créer des propriétés RDF
+                Property feedbackProperty = model.createProperty(NS + "feedback");
+                Property commentProperty = model.createProperty(NS + "comment");
+                Property ratingProperty = model.createProperty(NS + "rating");
+
+                // Ajouter les propriétés à la ressource
+                model.add(feedbackResource, RDF.type, model.createResource(NS + "Feedback"));
+                model.add(feedbackResource, feedbackProperty, feedbackResourceUri);
+                model.add(feedbackResource, commentProperty, feedbackDto.getComment());
+                model.add(feedbackResource, ratingProperty, feedbackDto.getRating().toString());
+
+                // Sauvegarder le modèle
+                JenaEngine.saveModel(model, "data/rescuefood.owl");
+
+                // Exécuter une requête SPARQL pour récupérer le feedback
+                String sparqlSelect =
+                        "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                                "PREFIX ex: <" + NS + ">\n" +
+                                "SELECT ?feedback ?rating ?comment WHERE { " +
+                                "  ?feedback rdf:type ex:Feedback . " +
+                                "  ?feedback ex:rating ?rating . " +
+                                "  ?feedback ex:comment ?comment . " +
+                                "  FILTER (str(?feedback) = \"" + feedbackResourceUri + "\") . " +
+                                "}";
+
+                Query query = QueryFactory.create(sparqlSelect);
+                QueryExecution qexec = QueryExecutionFactory.create(query, model);
+                ResultSet results = qexec.execSelect();
+
+                List<Map<String, Object>> bindingsList = new ArrayList<>();
+
+                while (results.hasNext()) {
+                    QuerySolution solution = results.nextSolution();
+                    String feedbackUri = solution.getResource("feedback").toString();
+                    String rating = solution.getLiteral("rating").getString();
+                    String comment = solution.getLiteral("comment").getString();
+
+                    Map<String, Object> binding = new HashMap<>();
+                    binding.put("feedback", Map.of("type", "uri", "value", feedbackUri));
+                    binding.put("rating", Map.of("type", "literal", "value", rating));
+                    binding.put("comment", Map.of("type", "literal", "value", comment));
+
+                    bindingsList.add(binding);
+                }
+
+                qexec.close(); // Fermer la requête
+
+                // Préparer la réponse
+                Map<String, Object> response = new HashMap<>();
+                response.put("head", Map.of("vars", Arrays.asList("feedback", "rating", "comment")));
+                response.put("bindings", bindingsList);
+
+                // Renvoyer la réponse en tant que JSON
+                return ResponseEntity.ok(response); // Utilisez ok() pour un status 200
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                        .body(Map.of("error", "Erreur lors de l'ajout du feedback : " + e.getMessage()));
+            }
+        } else {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Erreur lors de la lecture du modèle à partir de l'ontologie"));
+        }
+    }
+
+    @PostMapping("/filterFeedback")
+    @CrossOrigin(origins = "http://localhost:4200")
+    public ResponseEntity<Object> filtrerFeedback(@RequestBody FeedbackDto feedbackDto) {
+        String NS = "http://rescuefood.org/ontology#";
+
+        // Charger le modèle à partir du fichier ontologie
+        Model model = JenaEngine.readModel("data/rescuefood.owl");
+        if (model == null) {
+            return new ResponseEntity<>("Erreur lors du chargement du modèle.", HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+
+        // Vérifier les valeurs de feedbackDto
+        if (feedbackDto.getComment() == null) {
+            return new ResponseEntity<>("Commentaire requis.", HttpStatus.BAD_REQUEST);
+        }
+
+        try {
+            // Créer une requête SPARQL SELECT pour filtrer les feedbacks par commentaire
+            String sparqlSelect =
+                    "PREFIX j0: <" + NS + ">\n" +
+                            "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>\n" +
+                            "SELECT ?feedback ?rating ?comment WHERE { " +
+                            "  ?feedback rdf:type j0:Feedback . " +
+                            "  ?feedback j0:rating ?rating . " +
+                            "  ?feedback j0:comment ?comment . " +
+                            "  FILTER (contains(?comment, \"" + feedbackDto.getComment() + "\")) . " +
+                            "}";
+
+            // Afficher la requête pour débogage
+            System.out.println("Requête SPARQL : " + sparqlSelect);
+
+            // Exécuter la requête SPARQL SELECT sur le modèle
+            try (QueryExecution qexec = QueryExecutionFactory.create(sparqlSelect, model)) {
+                ResultSet results = qexec.execSelect();
+                List<Map<String, String>> feedbackList = new ArrayList<>();
+
+                while (results.hasNext()) {
+                    QuerySolution solution = results.nextSolution();
+                    Map<String, String> feedback = new HashMap<>();
+                    feedback.put("feedback", solution.get("feedback").toString()); // URI du feedback
+                    feedback.put("rating", solution.get("rating").toString());     // Valeur littérale de la note
+                    feedback.put("comment", solution.get("comment").toString());   // Valeur littérale du commentaire
+                    feedbackList.add(feedback);
+                }
+
+                return new ResponseEntity<>(feedbackList, HttpStatus.OK); // Renvoie la liste des feedbacks en JSON
+            }
+        } catch (Exception e) {
+            return new ResponseEntity<>("Erreur lors de la filtration du feedback : " + e.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
 
 
 
